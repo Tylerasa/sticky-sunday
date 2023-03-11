@@ -23,6 +23,7 @@ const pool = mysql.createPool({
   user: "root",
   password: "password",
   database: "simnet",
+  connectionLimit: 10,
 });
 
 // app.get("/add-column", (req, res) => {
@@ -65,16 +66,45 @@ function is_valid_winning_ticket(ticket_no, res) {
       if (results.length === 0) {
         res.status(404).send("Ticket valid but not a winning ticket.");
       } else {
-        if (results[0].Paid) {
-          console.log("Paid winning Ticket🚀");
-          res.status(200).send("Paid winning Ticket");
-        } else {
-          res.status(200).send("Valid winning Ticket🚀, yet to be paid.");
+        if (results[0].Paid == 1) {
+          console.log("This winning ticket has already being paid.");
+          res.status(200).send("This winning ticket has already being paid.");
+        } else if (results[0].Paid == 0) {
+          // res.status(200).send("Valid winning Ticket🚀, yet to be paid.");
           console.log("Valid winning Ticket🚀, yet to be paid.");
+          make_payment(ticket_no);
+        } else {
+          res.status(200).send("Winning ticket, null paid field.");
+          console.log("Winning ticket, null paid field.");
         }
       }
     }
   );
+}
+
+async function make_payment(ticket_no) {
+  try {
+    pool.query("START TRANSACTION");
+
+    pool.query(
+      "UPDATE winning_tickets SET Paid = 1, PaidDate_Time = NOW() WHERE Ticket_Code = ?",
+      [ticket_no]
+    );
+
+    pool.query(
+      "UPDATE tickets SET Paid = 1, PaidDate_Time = NOW() WHERE TicketNumber = ?",
+      [ticket_no]
+    );
+
+    pool.query("COMMIT");
+
+    console.log("Paid column updated successfully");
+    res.status(404).send("Paid column updated successfully✔️");
+
+  } catch (error) {
+    pool.query("ROLLBACK");
+    console.log("Error occurred while updating Paid column:", error.message);
+  } 
 }
 
 app.listen(port, () => {
