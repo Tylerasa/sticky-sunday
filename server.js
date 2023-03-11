@@ -61,7 +61,7 @@ function is_valid_winning_ticket(ticket_no, res) {
       if (error) throw error;
 
       if (results.length === 0) {
-        res.status(404).send("Ticket not found");
+        res.status(404).send("Ticket valid but not a winning ticket.");
       } else {
         res.status(200).send("Valid Winning Ticket🚀");
         console.log("Valid Winning Ticket🚀");
