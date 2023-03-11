@@ -25,7 +25,6 @@ const pool = mysql.createPool({
   database: "simnet",
 });
 
-
 // app.get("/add-column", (req, res) => {
 //   pool.query(
 //     "ALTER TABLE tickets ADD COLUMN PaidDate_Time datetime DEFAULT NULL",
@@ -38,7 +37,7 @@ const pool = mysql.createPool({
 
 app.post("/validate-ticket", (req, res) => {
   const { ticket_no } = req.body;
-  if(ticket_no.length !== 11){
+  if (ticket_no.length !== 11) {
     return res.status(404).send("Incorrect ticket length");
   }
   pool.query(
@@ -66,18 +65,17 @@ function is_valid_winning_ticket(ticket_no, res) {
       if (results.length === 0) {
         res.status(404).send("Ticket valid but not a winning ticket.");
       } else {
-        res.status(200).send("Valid Winning Ticket🚀");
-        if(results[0].Paid){
+        if (results[0].Paid) {
           console.log("Paid winning Ticket🚀");
-        }else{
+          res.status(200).send("Paid winning Ticket");
+        } else {
+          res.status(200).send("Valid winning Ticket🚀, yet to be paid.");
           console.log("Valid winning Ticket🚀, yet to be paid.");
-
         }
       }
     }
   );
 }
-
 
 app.listen(port, () => {
   console.log(`Server running on port: ${port}`);
