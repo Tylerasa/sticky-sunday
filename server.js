@@ -38,6 +38,9 @@ const pool = mysql.createPool({
 
 app.post("/validate-ticket", (req, res) => {
   const { ticket_no } = req.body;
+  if(ticket_no.length !== 11){
+    return res.status(404).send("Incorrect ticket length");
+  }
   pool.query(
     "SELECT * FROM tickets WHERE TicketNumber = ?",
     [ticket_no],
@@ -64,7 +67,12 @@ function is_valid_winning_ticket(ticket_no, res) {
         res.status(404).send("Ticket valid but not a winning ticket.");
       } else {
         res.status(200).send("Valid Winning Ticket🚀");
-        console.log("Valid Winning Ticket🚀");
+        if(results[0].Paid){
+          console.log("Paid winning Ticket🚀");
+        }else{
+          console.log("Valid winning Ticket🚀, yet to be paid.");
+
+        }
       }
     }
   );
