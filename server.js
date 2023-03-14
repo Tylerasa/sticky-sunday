@@ -36,8 +36,9 @@ const pool = mysql.createPool({
 //   );
 // });
 
+
+//run this to add new columns
 app.get("/add-info-column", (req, res) => {
-  console.log("hello");
   pool.query(
     `
     ALTER TABLE tickets 
@@ -76,7 +77,6 @@ app.post("/make-payment", async (req, res) => {
     method,
   } = req.body;
 
-  console.log(ticket_no);
   try {
     const isValid = await is_valid_winning_ticket(ticket_no);
 
@@ -177,7 +177,6 @@ function is_valid_winning_ticket(ticket_no) {
       "SELECT * FROM tickets WHERE TicketNumber = ? and Winner = 1 and Paid =0",
       [ticket_no],
       (error, results, fields) => {
-        console.log(results);
         if (error) {
           reject(error);
         } else if (results.length === 0) {
